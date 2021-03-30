@@ -38,7 +38,7 @@ int main(int argc, char* argv[]) {
    if (thread_count < 1 || n < 1) Usage(argv[0]);
 
 #  pragma omp parallel for num_threads(thread_count) \
-      reduction(+: sum) private(factor)
+      reduction(+: sum) private(factor)if()
    for (i = 0; i < n; i++) {
       factor = (i % 2 == 0) ? 1.0 : -1.0; 
       sum += factor/(2*i+1);
