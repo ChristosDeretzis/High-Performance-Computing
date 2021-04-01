@@ -70,7 +70,7 @@ void initialize_match(int match[], long match_size) {
 
 void find_total_matches(int match[], char* pattern, char* buffer, long match_size, long pattern_size, long* total_matches) {
 	int i, j;
-	
+	# pragma omp parallel for default(shared) private(i,j)
 	for (i = 0; i < match_size; i++) {
       		for (j = 0; j < pattern_size; j++){
       			if (buffer[i + j] != pattern[j])
