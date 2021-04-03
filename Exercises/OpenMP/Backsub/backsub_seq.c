@@ -56,6 +56,7 @@ void create_matrix(float *x, float *b, float **a, int N) {
 void calculate_x_matrix(float *x, float *b, float **a, int N) {
 	int i, j;
 	float sum;
+	#
 	for (i = 0; i < N; i++) {
 		sum = 0.0;
 		for (j = 0; j < i; j++) {
