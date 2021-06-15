@@ -2,7 +2,6 @@
 #include <string.h>
 #include <stdlib.h>
 #include <time.h>
-#include <omp.h>
 
 void generate_list(int * x, int n) {
    int i;
@@ -48,17 +47,9 @@ void mergesort(int * X, int n, int * tmp)
 {
    if (n < 2) return;
 
-   #pragma omp task
-   {
-   	   mergesort(X, n/2, tmp); 
-   }
+   mergesort(X, n/2, tmp); 
+   mergesort(X+(n/2), n-(n/2), tmp);
    
-   #pragma omp task
-   {
-   		mergesort(X+(n/2), n-(n/2), tmp);
-   }
-   
-   #pragma omp taskwait
    merge(X, n, tmp);
 }
 
@@ -67,7 +58,6 @@ void main(int argc, char *argv[])
 {
    int n;
    int *data, *tmp;
-   double start, end;
   
    if (argc != 2) {
 		printf ("Usage : %s <list size>\n", argv[0]);
@@ -78,19 +68,12 @@ void main(int argc, char *argv[])
    
    generate_list(data, n);
    printf("List Before Sorting...\n");
-//   print_list(data, n);
+   print_list(data, n);
    
-   start = clock();
-   
-   #pragma omp parallel
-   #pragma omp single
    mergesort(data, n, tmp);
    
-   end = clock();
-   
    printf("\nList After Sorting...\n");
-//   print_list(data, n);
-   printf("Time: %g\n",(double)(end-start)/CLOCKS_PER_SEC);
+   print_list(data, n);
    printf("\n");
 
 }
