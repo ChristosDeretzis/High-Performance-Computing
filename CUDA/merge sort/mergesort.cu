@@ -1,92 +1,120 @@
 #include <cuda.h>
-#include <iostream>
 #include <stdlib.h>
+#include <stdio.h>
 #include <time.h>
 
-__global__ void MergeSort(int *nums, int *temp, int n) {
-    int tid = threadIdx.x + blockDim.x * blockIdx.x;
-    for (int i = 2; i < 2 * n; i *= 2) {
-        int len = i;
-        if (n - tid < len) len = n - tid;
-        if (tid % i == 0) {
-            int *seqA = &nums[tid], lenA = i / 2, j = 0;
-            int *seqB = &nums[tid + lenA], lenB = len - lenA, k = 0;
-            int p = tid;
-            while (j < lenA && k < lenB) {
-                if (seqA[j] < seqB[k]) {
-                    temp[p] = seqA[j];
-                    p++;
-                    j++;
-                } else {
-                    temp[p] = seqB[k];
-                    p++;
-                    k++;
-                }
-            }
-            while (j < lenA)
-                temp[p] = seqA[j];
-                p++;
-                j++;
-            while (k < lenB)
-                temp[p] = seqB[k];
-                p++;
-                k++;
-            for (int j = tid; j < tid + len; j++)
-                nums[j] = temp[j];
-        }
-        __syncthreads();
-    }
+#define N 262144
+#define threadSize 1
+
+void printArray(long A[], int size)
+{
+	int i;
+	for (i = 0; i < size; i++)
+		printf("%d ", A[i]);
+	printf("\n");
 }
 
-int main() {
-    float total_time, comp_time;
-        cudaEvent_t total_start, total_stop, comp_start, comp_stop;
-        cudaEventCreate(&total_start);
-        cudaEventCreate(&total_stop);
-        cudaEventCreate(&comp_start);
-        cudaEventCreate(&comp_stop);
-    
-    int size = 100;
-    int *nums = (int*)malloc(sizeof(int) * size);
-    srand(time(0));
-    for (int i = 0; i < size; ++i) {
-        nums[i] = rand() % 3000;
-    }
+__global__ void gpu_MergeSort(long* source, long *dest, long size) {
+	long index = blockIdx.x * blockDim.x + threadIdx.x;
+	if (index < N)
+	{
+		long start = index * size;
 
-    int *dNums;
-    cudaMalloc((void**)&dNums, sizeof(int) * size);
-    int *dTemp;
-    cudaMalloc((void**)&dTemp, sizeof(int) * size);
+		long middle = start + size / 2;
 
-    cudaEventRecord(total_start);
+		long end = start + size;
+		if (end > N)
+		{
+			end = N;
+		}
 
-    cudaMemcpy(dNums, nums, sizeof(int) * size, cudaMemcpyHostToDevice);
+		//printf("start: %d - Middle: %d - End: %d\n", start, middle, end);
 
-    dim3 threadPerBlock(10);
-    dim3 blockNum((size + threadPerBlock.x - 1) / threadPerBlock.x);
+		long i = start, j = middle;
 
-    cudaEventRecord(comp_start);
+		long k = start;
+		while (i < middle && j < end) {
+			if (source[i] <= source[j]) {
+				dest[k] = source[i];
+				i++;
+			}
+			else {
+				dest[k] = source[j];
+				j++;
+			}
+			k++;
+		}
+		while (i < middle) {
+			dest[k] = source[i];
+			k++;
+			i++;
+		}
+		while (j < end) {
+			dest[k] = source[j];
+			k++;
+			j++;
+		}
+	}
+	__syncthreads();
+}
 
-    MergeSort<<<blockNum, threadPerBlock>>>(dNums, dTemp, size);
 
-    cudaEventRecord(comp_stop);
+int main()
+{
+	float total_time, comp_time;
+    cudaEvent_t total_start, total_stop, comp_start, comp_stop;
+    cudaEventCreate(&total_start);
+    cudaEventCreate(&total_stop);
+    cudaEventCreate(&comp_start);
+    cudaEventCreate(&comp_stop);
+        
+    long a[N], b[N], *d_A, *d_B;
+	
+	for (size_t i = 0; i < N; i++)
+	{
+		a[i] = rand() % N;
+		b[i] = a[i];
+	}
+
+	int size = N * sizeof(long);
+
+	cudaMalloc((void**)&d_A, size);
+	cudaMalloc((void**)&d_B, size);
+	
+	cudaEventRecord(total_start);
+	
+	cudaMemcpy(d_A, a, size, cudaMemcpyHostToDevice);
+	
+	cudaEventRecord(comp_start);
+	
+	long blockSize = 0;
+	
+	// MERGE SORT WITH GPU
+	for (size_t i = 2; i <= N; i=i*2)
+	{
+		blockSize = N / (threadSize * i);
+		//printf("block: % d - thd: %d - i: %d\n", blockSize, threadSize, i);
+		gpu_MergeSort <<<blockSize, threadSize>> >(d_A, d_B, i);
+		cudaDeviceSynchronize();
+		cudaMemcpy(a, d_B, size, cudaMemcpyDeviceToHost);
+		
+		// Swap source with destination array
+		long *temp = d_A;
+		d_A = d_B;
+		d_B = temp;
+	}
+	
+	cudaEventRecord(comp_stop);
     cudaEventSynchronize(comp_stop);
     cudaEventElapsedTime(&comp_time, comp_start, comp_stop);
-
-    cudaMemcpy(nums, dNums, sizeof(int) * size, cudaMemcpyDeviceToHost);
-
+    
     cudaEventRecord(total_stop);
     cudaEventSynchronize(total_stop);
     cudaEventElapsedTime(&total_time, total_start, total_stop);
-
-     for (int i = 0; i < size; ++i) {
-         printf("%d ", nums[i]);
-     }
-     printf("\n");
-
-    free(nums);
-    cudaFree(dNums);
-    cudaFree(dTemp);
+    
+  
+    cudaFree(d_A);
+    cudaFree(d_B);
     cudaEventDestroy(comp_start);
     cudaEventDestroy(comp_stop);
     cudaEventDestroy(total_start);
@@ -99,6 +127,9 @@ int main() {
     printf("Total time (ms): %f\n", total_time);
     printf("Kernel time (ms): %f\n", comp_time);
     printf("Data transfer time (ms): %f\n", total_time-comp_time);
-
-    printf("Number of numbers: %d\n", size);
+    
+	 printArray(a, N);
+    return 0;
 }
+
+

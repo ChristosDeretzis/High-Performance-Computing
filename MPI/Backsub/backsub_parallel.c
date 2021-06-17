@@ -64,17 +64,25 @@ int main ( int argc, char *argv[] )  {
 	create_matrix(x, b, a, start, stop); 
 
     /* Calulation */
-	calculate_x_matrix(x, b, a, start, stop);
+    if(rank == 0) {
+    	calculate_x_matrix(x, b, a, start, stop);
+    	MPI_Send(x, N, MPI_FLOAT, rank+1, 0, MPI_COMM_WORLD);
+	}
 	
-	printf("Hey 1");
-
-    //scanf ("%c", &any);
-    
-    MPI_Reduce(x, final_x, N, MPI_FLOAT, MPI_SUM, 0, MPI_COMM_WORLD);
-        
-    /* Print result for debugging*/
-    if(rank == 0){
-    	print_results(final_x, N);	
+	if(rank!=0 && rank!=size-1) {
+		MPI_Recv(x, N, MPI_FLOAT, rank-1,0, MPI_COMM_WORLD,&status);
+		calculate_x_matrix(x, b, a, start, stop);
+    	MPI_Send(x, N, MPI_FLOAT, rank+1, 0, MPI_COMM_WORLD);
+	} 
+	
+	if(rank == size - 1) {
+		MPI_Recv(x, N, MPI_FLOAT, rank-1,0, MPI_COMM_WORLD,&status);
+		calculate_x_matrix(x, b, a, start, stop);
+		
+		print_results(final_x, N);
+		
+		end = MPI_Wtime() - begin;
+        printf("Total time: %f\n",end);
 	}
 	
 	MPI_Finalize();

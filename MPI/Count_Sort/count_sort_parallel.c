@@ -45,7 +45,7 @@ int main(int argc, char *argv[]) {
 	
 	count_sort(initial_array, N, start, stop);
 	
-	MPI_Allreduce(initial_array, sorted_array, N, MPI_INT, MPI_SUM, 0, MPI_COMM_WORLD);
+	MPI_Reduce(initial_array, sorted_array, N, MPI_INT, MPI_SUM, 0, MPI_COMM_WORLD);
 	
 	if(rank == 0) {
 		end = MPI_Wtime();
