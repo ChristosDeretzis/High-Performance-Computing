@@ -2,7 +2,6 @@
 #include <stdlib.h>
 #define N 20
 #define THREADS_PER_BLOCK 512
-#define BLOCKS (N + THREADS_PER_BLOCK - 1)/THREADS_PER_BLOCK
 
 __global__ void find_primes(int *a, int n) {
 	int idx = threadIdx.x + blockIdx.x * blockDim.x;
@@ -42,7 +41,7 @@ int main(int argc, char *argv[]) {
     
     blocks = (N + THREADS_PER_BLOCK - 1)/THREADS_PER_BLOCK
 
-    find_primes<<<BLOCKS, THREADS_PER_BLOCK>>>(dev_array, N);
+    find_primes<<<blocks, THREADS_PER_BLOCK>>>(dev_array, N);
 
 
     cudaEventRecord(comp_stop);
