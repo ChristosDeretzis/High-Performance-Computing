@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "mpi.h"
-#define N 50000
+#define N 30000
 #define UPPER N*4
 #define LOWER 1
 

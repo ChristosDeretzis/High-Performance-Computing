@@ -12,7 +12,7 @@ void print_array(int a[], int n);
 void init_array(int array[], int n, int upper, int lower);
 void display_time(clock_t start, clock_t end);
 
-int main(void) {
+int main(int argc, char* argv[]) {
 
     int thread_count, n;
     if(argc != 3){

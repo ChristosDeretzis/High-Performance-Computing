@@ -47,7 +47,7 @@ int main (int argc, char *argv[]) {
     int extra = file_size % size;
     int start = rank * chunk;
     int stop = start + chunk + strlen(pattern) - 1;
-    if (rank == size - 1) stop += extra;
+    if (rank == size - 1) stop = start + chunk + extra;
 
     int local_file_size = stop - start;
 	

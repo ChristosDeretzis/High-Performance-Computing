@@ -2,7 +2,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <time.h>
-#include <mpi.h>
+#include "mpi.h"
 
 void generate_list(int * x, int n) {
    int i;
@@ -60,6 +60,10 @@ void main(int argc, char *argv[])
    int n, world_rank, world_size;
    int *data;
    double start, end;
+   
+   MPI_Init(&argc, &argv);
+   MPI_Comm_rank(MPI_COMM_WORLD, &world_rank);
+   MPI_Comm_size(MPI_COMM_WORLD, &world_size);
   
    if (argc != 2) {
 		printf ("Usage : %s <list size>\n", argv[0]);
@@ -68,17 +72,15 @@ void main(int argc, char *argv[])
    data = (int *) malloc (sizeof(int)*n);
    
    generate_list(data, n);
-   MPI_INIT(&argc, &argv);
-   MPI_Comm_rank(MPI_COMM_WORLD, &world_rank);
-   MPI_Comm_size(MPI_COMM_WORLD, &world_size);
+ 
    
    int size = n/world_size;
    
    int *sub_array = malloc(size * sizeof(int));
-   MPI_Scatter(original_array, size, MPI_INT, sub_array, size, MPI_INT, 0, MPI_COMM_WORLD);
+   MPI_Scatter(data, size, MPI_INT, sub_array, size, MPI_INT, 0, MPI_COMM_WORLD);
    
    int *tmp_array = malloc(size * sizeof(int));
-   mergeSort(sub_array, size, tmp_array);
+   mergesort(sub_array, size, tmp_array);
    
     int *sorted = NULL;
 	if(world_rank == 0) {	
@@ -89,7 +91,7 @@ void main(int argc, char *argv[])
 	
 	if(world_rank == 0) {
 		int *other_array = malloc(n * sizeof(int));
-		mergeSort(sorted, n, other_array);
+		mergesort(sorted, n, other_array);
 		
 		print_list(sorted, n);
 		
