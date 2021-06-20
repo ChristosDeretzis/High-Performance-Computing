@@ -73,7 +73,9 @@ void main(int argc, char *argv[])
    
    generate_list(data, n);
  
-   
+   if(world_rank == 0) {
+   	   start = MPI_Wtime(); 
+   }
    int size = n/world_size;
    
    int *sub_array = malloc(size * sizeof(int));
@@ -90,10 +92,12 @@ void main(int argc, char *argv[])
 	MPI_Gather(sub_array, size, MPI_INT, sorted, size, MPI_INT, 0, MPI_COMM_WORLD);
 	
 	if(world_rank == 0) {
+		end = MPI_Wtime();
 		int *other_array = malloc(n * sizeof(int));
 		mergesort(sorted, n, other_array);
 		
-		print_list(sorted, n);
+//		print_list(sorted, n);
+		printf("\nTime spent for sorting: %f seconds\n", (double)(end-start));
 		
 		free(sorted);
 		free(other_array);

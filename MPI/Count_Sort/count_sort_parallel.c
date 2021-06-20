@@ -9,7 +9,7 @@
 void count_sort(int a[], int n, int start, int stop);
 void print_array(int a[], int n);
 void init_array(int array[], int n, int upper, int lower);
-void display_time(clock_t start, clock_t end);
+void display_time(double start, double end);
 
 int main(int argc, char *argv[]) {
 	
@@ -95,6 +95,6 @@ void init_array(int array[], int n, int upper, int lower){
         array[i] = (rand() % (upper - lower + 1)) + lower;
 }
 
-void display_time(clock_t start, clock_t end){
-    (void) printf("Time spent for sorting: %g seconds\n", (double)(end-start));
+void display_time(double start, double end){
+    (void) printf("Time spent for sorting: %f seconds\n", (double)(end-start));
 }
