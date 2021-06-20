@@ -6,6 +6,7 @@ void create_matrix(float *x, float *b, float **a, int N);
 void calculate_x_matrix(float *x, float *b, float **a, int N);
 void print_results(float *x, int N);
 void validate_results(float *x, float *b, float **a, int N);
+void display_time(clock_t start, clock_t end);
 
 void main ( int argc, char *argv[] )  {
 
@@ -30,12 +31,14 @@ char any;
 	create_matrix(x, b, a, N); 
 
     /* Calulation */
+    double begin = clock();
 	calculate_x_matrix(x, b, a, N);
-
+	double end = clock();
     //scanf ("%c", &any);
         
     /* Print result for debugging*/
 	print_results(x, N);
+	display_time(begin, end);
 		
     /* Validate  result for debugging */
 //    validate_results(x, b, a, N);   
@@ -86,4 +89,8 @@ void validate_results(float *x, float *b, float **a, int N) {
       			}
 		}
 	}
+}
+
+void display_time(clock_t start, clock_t end){
+    (void) printf("Time spent for sorting: %g seconds\n", (double)(end-start) / CLOCKS_PER_SEC);
 }

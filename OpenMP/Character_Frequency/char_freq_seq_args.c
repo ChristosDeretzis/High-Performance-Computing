@@ -1,5 +1,7 @@
 #include <stdio.h> 
 #include <stdlib.h> 
+#include <time.h>
+
 #define N 128
 #define base 0
 
@@ -39,10 +41,13 @@ int main (int argc, char *argv[]) {
 	if (result != file_size) {printf ("Reading error\n"); return 4;} 
 	
 	initialize_frequency_array(freq);
-			
-	calculate_character_frequency(freq, buffer, file_size);
 	
-	show_characters_frequency(freq);	
+	double start = clock();
+	calculate_character_frequency(freq, buffer, file_size);
+	double end = clock();
+	
+	show_characters_frequency(freq);
+	printf("Time spent for sorting: %g seconds\n", (double)(end-start) / CLOCKS_PER_SEC);	
 
 	fclose (pFile);
 	free (buffer);

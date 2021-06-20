@@ -46,10 +46,9 @@ int main (int argc, char *argv[]) {
 	calculate_character_frequency(freq, buffer, file_size);
 	end = omp_get_wtime();
 	
-	printf("Time for counting: %g", (end-start));
-	
 	show_characters_frequency(freq);	
-
+	printf("Time for counting: %f", (end-start));
+	
 	fclose (pFile);
 	free (buffer);
 

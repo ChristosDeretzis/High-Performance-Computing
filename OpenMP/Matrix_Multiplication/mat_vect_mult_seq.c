@@ -1,4 +1,4 @@
-
+#include <time.h>
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -31,12 +31,13 @@ int main(void) {
    Read_vector("x", x, n, 12, 1);
 
 //   Print_vector("x", x, m);
-
-
+   double start = clock();
    Mat_vect_mult(A, x, y, m, n);
-
+   double end = clock();
+   
    Print_vector("y", y, m);
-
+   printf("Time spent for sorting: %g seconds\n", (double)(end-start) / CLOCKS_PER_SEC);
+   
    free(A);
    free(x);
    free(y);

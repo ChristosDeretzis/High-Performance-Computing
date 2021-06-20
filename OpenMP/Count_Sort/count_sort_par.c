@@ -11,7 +11,7 @@
 void count_sort(int a[], int n, int thread_count);
 void print_array(int a[], int n);
 void init_array(int array[], int n, int upper, int lower);
-void display_time(clock_t start, clock_t end);
+void display_time(double start, double end);
 
 int main(int argc, char* argv[]) {
 
@@ -31,11 +31,11 @@ int main(int argc, char* argv[]) {
 //    print_array(array, N);
 
     (void) printf("Sorting began...\n\n");
-    double begin = clock();
+    double start = omp_get_wtime();
     count_sort(array, n, thread_count);
-    double end = clock();
+    double end = omp_get_wtime();
 
-    display_time(begin, end);
+    display_time(start, end);
     
 //    (void) printf("\n\nSorted array: ");
 //    print_array(array, N);
@@ -81,6 +81,6 @@ void init_array(int array[], int n, int upper, int lower){
         array[i] = (rand() % (upper - lower + 1)) + lower;
 }
 
-void display_time(clock_t start, clock_t end){
-    (void) printf("Time spent for sorting: %g seconds\n", (double)(end-start) / CLOCKS_PER_SEC);
+void display_time(double start, double end){
+    (void) printf("Time spent for sorting: %f seconds\n", (end-start));
 }

@@ -41,13 +41,13 @@ int main (int argc, char *argv[]) {
 	
 	initialize_frequency_array(freq);
 			
-	start = omp_get_wtime();	
+	double start = omp_get_wtime();	
 	calculate_character_frequency(freq, buffer, file_size);
-	end = omp_get_wtime();
+	double end = omp_get_wtime();
 	
-	printf("Time for counting: %g", (end-start));
 	
-	show_characters_frequency(freq);	
+	show_characters_frequency(freq);
+	printf("Time for counting: %f\n", (end-start));	
 
 	fclose (pFile);
 	free (buffer);

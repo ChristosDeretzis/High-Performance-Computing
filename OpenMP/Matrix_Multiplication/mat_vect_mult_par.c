@@ -1,4 +1,4 @@
-
+#include <omp.h>
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -32,11 +32,13 @@ int main(void) {
 
 //   Print_vector("x", x, m);
 
-
+   double start = omp_get_wtime();
    Mat_vect_mult(A, x, y, m, n);
-
+   double end = omp_get_wtime();
+   
    Print_vector("y", y, m);
-
+   printf("Time spent for sorting: %f seconds\n", (end-start));
+   
    free(A);
    free(x);
    free(y);

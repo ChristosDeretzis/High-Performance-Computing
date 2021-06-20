@@ -5,7 +5,7 @@
 #define base 0
 
 void show_characters_frequency(int freq[]);
-void calculate_character_frequency(int freq[], char* buffer, long file_size);
+void calculate_character_frequency(int freq[], char* buffer, long file_size, omp_lock_t locks[]);
 void initialize_frequency_array(int freq[]);
 void create_locks(omp_lock_t locks[], int n);
 void destroy_locks(omp_lock_t locks[], int n);
@@ -45,14 +45,13 @@ int main (int argc, char *argv[]) {
 	create_locks(locks, N);
 	initialize_frequency_array(freq);
 			
-	start = omp_get_wtime();	
+	double start = omp_get_wtime();	
 	calculate_character_frequency(freq, buffer, file_size, locks);
-	end = omp_get_wtime();
-	
-	printf("Time for counting: %g", (end-start));
+	double end = omp_get_wtime();
 	
 	show_characters_frequency(freq);	
-
+	printf("Time for counting: %f", (end-start));
+	
 	fclose (pFile);
 	free (buffer);
 	destroy_locks(locks, N);

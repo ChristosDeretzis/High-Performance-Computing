@@ -1,6 +1,7 @@
 #include <stdio.h> 
 #include <stdlib.h> 
 #include <string.h>
+#include <time.h>
 
 void initialize_match(int match[], long match_size);
 void find_total_matches(int match[], char* pattern, char* buffer, long match_size, long pattern_size, long* total_matches);
@@ -14,6 +15,7 @@ int main (int argc, char *argv[]) {
 	char * filename, *pattern;
 	size_t result;
 	int i, j, *match;
+	double start, end;
 
     if (argc != 3) {
 		printf ("Usage : %s <file_name> <string>\n", argv[0]);
@@ -49,10 +51,12 @@ int main (int argc, char *argv[]) {
 	
 	initialize_match(match, match_size);
 	
+	start = clock();
 	find_total_matches(match, pattern, buffer, match_size, pattern_size, &total_matches);
+	end = clock();
 		
     printf("\nTotal matches = %ld\n", total_matches);
-    
+    printf("Time: %g\n",(double)(end-start)/CLOCKS_PER_SEC);
 
 	fclose (pFile);
 	free (buffer);

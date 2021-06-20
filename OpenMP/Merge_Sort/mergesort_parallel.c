@@ -80,17 +80,17 @@ void main(int argc, char *argv[])
    printf("List Before Sorting...\n");
 //   print_list(data, n);
    
-   start = clock();
+   start = omp_get_wtime();
    
    #pragma omp parallel
    #pragma omp single
    mergesort(data, n, tmp);
    
-   end = clock();
+   end = omp_get_wtime();
    
    printf("\nList After Sorting...\n");
 //   print_list(data, n);
-   printf("Time: %g\n",(double)(end-start)/CLOCKS_PER_SEC);
+   printf("Time: %f\n",(end-start));
    printf("\n");
 
 }
